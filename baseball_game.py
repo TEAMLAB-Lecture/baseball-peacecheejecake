@@ -88,8 +88,9 @@ def is_duplicated_number(three_digit):
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당
 
+    result = False
     d0, d1, d2 = three_digit
-    result = d0 == d1 or d1 == d2 or d2 == d0
+    result = any([d0 == d1, d1 == d2, d2 == d0])
     # ==================================
     return result
 
@@ -265,54 +266,141 @@ def is_no(one_more_input):
     return result
 
 
-def main():
-    print("Play Baseball")
-    user_input = 999
-    random_number = str(get_not_duplicated_three_digit_number())
-    print("Random Number is : ", random_number)
-    # ===Modify codes below=============
-    # 위의 코드를 포함하여 자유로운 수정이 가능함
-    
-    while True:
-        strikes = 0
-        random_number = str(get_not_duplicated_three_digit_number())
-        while strikes < 3:
-            # 올바른 숫자 입력받기
-            while True:
-                user_input = input('Input guess number : ')
-                if user_input == '0' or is_validated_number(user_input):
-                    break
-                print("Wrong Input, Input again")
-            
-            # 입력이 0이면 종료
-            if user_input == '0':
-                break
-            
-            # 스트라이크, 볼 판정 -> 출력
-            strikes, balls = get_strikes_or_ball(user_input, random_number)
-            print(f'Strikes : {strikes} , Balls : {balls}')
 
-        # 입력이 0이면 종료
-        if user_input == '0':
-            break
-        
-        # Ask one more
-        while True:
-            input_for_again = input('You win, one more(Y/N)?')
-            if is_yes(input_for_again) or is_no(input_for_again) or input_for_again == '0':
-                break
-            print('Wrong Input')
-        
-        # Yes면 새로운 게임 시작, No나 0인 경우 종료
-        if is_yes(input_for_again):
-            continue
-        else:
-            break
-        
-
-    # ==================================
+def end_game():
     print("Thank you for using this program")
     print("End of the Game")
 
+
+# def main():
+#     print("Play Baseball")
+#     user_input = '99'
+#     random_number = str(get_not_duplicated_three_digit_number())
+#     print("Random Number is : ", random_number)
+#     # ===Modify codes below=============
+#     # 위의 코드를 포함하여 자유로운 수정이 가능함
+    
+#     while True:
+#         random_number = str(get_not_duplicated_three_digit_number())
+#         while random_number != user_input:
+#             # 규칙에 맞는 숫자를 입력할 때까지 숫자 입력
+#             while True:
+#                 user_input = input('Input guess number : ')
+#                 if is_validated_number(user_input):
+#                     break
+#                 elif user_input == '0':
+#                     print_end()
+#                     return
+#                 print("Wrong Input, Input again")
+
+#             # 스트라이크, 볼 판정 -> 출력
+#             strikes, balls = get_strikes_or_ball(user_input, random_number)
+#             print(f'Strikes : {strikes} , Balls : {balls}')
+#             print(user_input, random_number)
+
+#         # 한 번 더? - 올바른 입력이 될 때까지 물어서 답을 얻기
+#         while True:
+#             input_for_again = input('You win, one more(Y/N)?')
+#             if is_yes(input_for_again):
+#                 break
+#             elif input_for_again == '0' or is_no(input_for_again):
+#                 print_end()
+#                 return
+#             else:
+#                 print("Wrong Input")
+
+
+def get_validated_input():
+    user_input = input('Input guess number : ')
+    if user_input == '0':
+        return False
+    if is_validated_number(user_input):
+        return user_input
+
+    print('Wrong Input, Input again')
+    return get_validated_input()
+
+
+def get_validated_input_again():
+    user_input = input('You win, one more(Y/N)?')
+    if is_yes(user_input):
+        return True
+    if is_no(user_input) or user_input == '0':
+        return False
+    print('Wrong input')
+    return get_validated_input_again()
+
+
+def play(target_number):
+    input_number = get_validated_input()
+    if not input_number:
+        end_game()
+        return False
+
+    # 스트라이크, 볼 판정 -> 출력
+    strikes, balls = get_strikes_or_ball(input_number, target_number)
+    print(f'Strikes : {strikes} , Balls : {balls}')
+    # print(input_number, target_number)
+
+    if target_number == input_number:
+        return True
+    return play(target_number)
+
+
+def main():
+    print("Play Baseball")
+    random_number = str(get_not_duplicated_three_digit_number())
+    print("Random Number is :", random_number)
+
+    target_number = random_number
+    one_more_game = True
+    while one_more_game:
+        if not play(target_number):
+            return
+        one_more_game = get_validated_input_again()
+        target_number = str(get_not_duplicated_three_digit_number())
+    else:
+        end_game()
+        return
+
+
+# def play_in_test(input_number, target_number):
+#     strikes, balls = get_strikes_or_ball(input_number, target_number)
+#     print(f'Strikes : {strikes} , Balls : {balls}')
+#     print(input_number, target_number)
+
+#     return target_number == input_number
+
+
+# def get_strikes_or_ball_tc(user_input_number, random_number):
+#     result = []
+#     if random_number == user_input_number:
+#         result = [3, 0]
+
+#     strikes = 0
+#     ball = 0
+
+#     for number in user_input_number:
+#         if (number in random_number):
+#             if user_input_number.index(number) is random_number.index(number):
+#                 strikes += 1
+#             else:
+#                 ball += 1
+#     result = [strikes, ball]
+#     return result
+
+
+# def test():
+#     for target_number in range(100, 1000):
+#         target_number = str(target_number)
+#         for test_number in range(100, 1000):
+#             test_number = str(test_number)
+#             if not is_validated_number(target_number) or not is_validated_number(test_number):
+#                 continue
+#             print(test_number, target_number)
+#             assert get_strikes_or_ball(test_number, target_number) == get_strikes_or_ball_tc(test_number, target_number)
+            
+
 if __name__ == "__main__":
+    # test()
     main()
